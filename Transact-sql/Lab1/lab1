@@ -1,0 +1,156 @@
+shekhar Koirala
+Microsoft professional Program on edx.org
+course - 2 ; Quering on Transact-sql
+--module 1-2 (lab1) 
+-- all code is tested in offline version of sql management 2012 windows 10  32 bit Machine
+--All video tutorial codes
+
+
+--cast 
+SELECT CAST(ProductID AS varchar(3)) + ':' + Name AS ProductName
+FROM SalesLT.Product; 
+
+/*--select all column 
+SELECT * from  SalesLT.Product;
+*/
+--covert 
+--convert
+SELECT CONVERT(varchar(3), ProductID) + ':' + Name AS ProductName
+FROM SalesLT.Product; 
+
+--CONVERT Dates
+SELECT SellStartDate,
+		CONVERT(nvarchar(30), SellStartDate) AS ConvertedDate,
+	CONVERT(nvarchar(30), SellStartDate, 126) AS ISO8601FormatDate
+From SalesLT.Product;
+
+--Try to CAST
+SELECT Name, TRY_CAST(Size AS Integer) AS NumericSize
+FROM SalesLT.Product;
+
+--Null number = 0
+select Name, ISNULL(TRY_CAST(Size as integer), 0) AS numericSize 
+from SalesLT.Product;
+
+--Null strings = blank string 
+select ProductNumber, ISNULL(color, '') + ',' + ISNULL(Size, '') AS ProductDetail
+from salesLT.Product;
+
+--Muli color = Null
+select Name, Nullif(color, 'Multi') AS SingleColor
+from SalesLT.Product;
+
+--find first non Null DATE
+SELECT Name, COALESCE(DiscontinuedDate, SellEndDate, SellStartDate ) AS LastActivity
+from SalesLT.Product;
+
+--SEARCHED CASE
+SELECT Name,
+	case 
+		when SellEndDate is Null then 'On sale'
+		ELSE 'Discontinued'
+	END AS SalesStatus
+from SalesLT.Product;
+
+
+
+
+--lab task start from here, task1 and task 2 is skipped due to its simplicity
+--task3 
+--question
+Each customer has an assigned salesperson. Can you finish the query to include the salesperson and a nicely structured display of the customers' names?
+Instructions
+    Complete the query to list the following elements for all customers:
+        The salesperson
+        A column named CustomerName that displays how the customer contact should be greeted (e.g. "Mr Smith").
+        The customer's phone number (Phone)
+    Don't forget to space out the contents of your CustomerName column with + ' ' + and use the alias provided
+
+--solution
+SELECT Salesperson, Title + ' ' + LastName AS CustomerName, Phone
+FROM SalesLT.Customer;
+
+
+
+--task4
+--question
+As a reminder, if you want to build a string with an integer (e.g. id) you can use:
+CAST(id AS VARCHAR)
+Put it to the test; as you continue to work with the AdventureWorks customer data, you must create queries for reports that have been requested by the sales team.
+Instructions
+Provide a list of all customer companies in the format <Customer ID>: <Company Name> (e.g. 78: Preferred Bikes). You'll need to use VARCHAR in your solution. Don't forget to use the alias provided.
+
+--solution
+SELECT cast(CUSTOMERID aS varchar(5)) + ': ' + CompanyName As CustomerCompany
+from SalesLT.Customer;
+
+
+
+--task5
+--question
+The SalesLT.SalesOrderHeader table contains records of sales orders. You have been asked to retrieve data for a report that shows:
+    The sales order number and revision number in the format <Order Number> (<Revision>) (e.g. SO71774 (2)).
+    The order date converted to ANSI standard format yyyy.mm.dd (e.g. 2015.01.31).
+Instructions
+Complete the query on the right to create the 2-column table that's specified above.
+
+
+--solution
+SELECT SalesOrderNumber + ' (' + STR(RevisionNumber, 1) + ')' AS OrderRevision,
+	   CONVERT(nvarchar(30), OrderDate, 102) AS OrderDate
+FROM SalesLT.SalesOrderHeader;
+
+
+
+--task6
+--question
+In this exercise, you'll write a query that returns a list of customer names. The list must consist of a single field in the format <first name> <last name> (e.g. Keith Harris) if the middle name is unknown, or <first name> <middle name> <last name> (e.g. Jane M. Gates) if a middle name is stored in the database.
+Instructions
+Retrieve customer contact names including middle names when they're known.
+
+--solution
+SELECT FirstName + ' ' + ISNULL(MiddleName + '.', '') + LastName
+AS CustomerName
+FROM SalesLT.Customer;
+
+
+
+--task7
+--question
+Customers may provide AdventureWorks with an email address, a phone number, or both. If an email address is available, then it should be used as the primary contact method; if not, then the phone number should be used. Here, you will write a query that returns a list of customer IDs in one column, and a second column named PrimaryContact that contains the email address if known, and otherwise the phone number.
+Note: In the sample data provided in AdventureWorksLT, there are no customer records without an email address. Therefore, to verify that your query works as expected, we have run the following UPDATE statement to remove some existing email addresses before you write your query. (Don't worry, you'll learn about UPDATE statements later in the course!)
+UPDATE SalesLT.Customer
+SET EmailAddress = NULL
+WHERE CustomerID % 7 = 1;
+Instructions
+Write a query that returns a list of customer IDs in one column, and a second column called PrimaryContact that contains the email address if known, and otherwise the phone number.
+UPDATE SalesLT.Customer
+SET EmailAddress = NULL
+WHERE CustomerID % 7 = 1;
+
+--solution
+SELECT CustomerID, Coalesce(EmailAddress,Phone) AS PrimaryContact
+FROM SalesLT.Customer;
+
+
+
+--task8 last task of lab1 
+--question
+you have been asked to create a query that returns a list of sales order IDs and order dates with a column named ShippingStatus that contains the text "Shipped" for orders with a known ship date, and "Awaiting Shipment" for orders with no ship date.
+Note: In the sample data provided in AdventureWorksLT, there are no sales order header records without a ship date. Therefore, to verify that your query works as expected, we have run the following UPDATE statement to remove some existing ship dates before you write your query. (Again, don't worry, you'll learn about UPDATE statements later in the course!)
+UPDATE SalesLT.SalesOrderHeader
+SET ShipDate = NULL
+WHERE SalesOrderID > 71899;
+Instructions
+Write a query to list sales order IDs and order dates with a column named ShippingStatus that contains the text 'Shipped' for orders with a known ship date, and 'Awaiting Shipment' for orders with no ship date.
+UPDATE SalesLT.SalesOrderHeader
+SET ShipDate = NULL
+WHERE SalesOrderID > 71899;
+
+--solution
+SELECT SalesOrderID, OrderDate,
+  CASE
+    WHEN ShipDate IS Null then 'Awaiting shipment'
+    ELSE 'Shipped'
+  END AS ShippingStatus
+FROM SalesLT.SalesOrderHeader;
